@@ -1,0 +1,43 @@
+eureka:
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+
+spring:
+  application:
+    name: backend-gateway
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8081
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      httpclient:
+        connect-timeout: 2000
+        response-timeout: 5s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.netflix: DEBUG
+    com.netflix.discovery: DEBUG
+    com.netflix.eureka: DEBUG

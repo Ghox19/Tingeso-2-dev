@@ -1,2 +1,2 @@
-# Tingeso-2-dev
-Software Tecnic's proyect develop
+# Tingeso-2
+Software Tecnic's proyect 2
