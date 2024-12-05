@@ -6,14 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="document-microservice" />
         <module name="backend-gateway" />
+        <module name="client-microservice" />
         <module name="backend-config" />
         <module name="loan-microservice" />
         <module name="backend-eureka" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="client-microservice" target="17" />
+      <module name="Backend" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -22,6 +24,7 @@
       <module name="backend-eureka" options="-parameters" />
       <module name="backend-gateway" options="-parameters" />
       <module name="client-microservice" options="-parameters" />
+      <module name="document-microservice" options="-parameters" />
       <module name="loan-microservice" options="-parameters" />
     </option>
   </component>

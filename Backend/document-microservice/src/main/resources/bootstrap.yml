@@ -14,7 +14,7 @@ spring:
     restart:
       aditional-paths: src/main/java
   application:
-    name: LOAN-MICROSERVICE    # Cambiado a mayúsculas para coincidir con el gateway
+    name: DOCUMENT-MICROSERVICE    # Cambiado a mayúsculas para coincidir con el gateway
   jpa:
     database: POSTGRESQL
     show-sql: true
@@ -26,7 +26,7 @@ spring:
       uri: http://localhost:8081
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/loan
+    url: jdbc:postgresql://localhost:5432/document
     username: postgres
     password: admin
   servlet:
