@@ -1,6 +1,8 @@
 package com.microservice.clientMicroservice.Controllers;
 
 import com.microservice.clientMicroservice.DTOS.ClientGetForm;
+import com.microservice.clientMicroservice.DTOS.ClientInfoRequiredForm;
+import com.microservice.clientMicroservice.DTOS.DocumentSafeForm;
 import com.microservice.clientMicroservice.DTOS.RegisterForm;
 import com.microservice.clientMicroservice.Services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,4 +28,16 @@ public class ClientController {
     public List<ClientGetForm> getAllClients() {
         return this.clientService.getAllClients();
     }
+
+    @GetMapping("/documents/{id}")
+    public List<DocumentSafeForm> getClientDocuments(@PathVariable Long id){return this.clientService.getClientDocuments(id);}
+
+    @GetMapping("/{id}")
+    public ClientGetForm getClientById(@PathVariable Long id) {  return this.clientService.getClientById(id);}
+
+    @GetMapping("/rinfo/{rut}")
+    public ClientInfoRequiredForm getClienRequiredInfoByRut(@PathVariable Integer rut) {
+        return this.clientService.getClientRequiredInfoByRut(rut);
+    }
+
 }

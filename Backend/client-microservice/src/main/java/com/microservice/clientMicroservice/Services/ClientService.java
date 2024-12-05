@@ -1,11 +1,9 @@
 package com.microservice.clientMicroservice.Services;
 
-import com.microservice.clientMicroservice.DTOS.ClientGetForm;
-import com.microservice.clientMicroservice.DTOS.DocumentForm;
-import com.microservice.clientMicroservice.DTOS.DocumentSafeForm;
-import com.microservice.clientMicroservice.DTOS.RegisterForm;
+import com.microservice.clientMicroservice.DTOS.*;
 import com.microservice.clientMicroservice.Entities.ClientEntity;
 import com.microservice.clientMicroservice.Repositories.ClientRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,20 +110,65 @@ public class ClientService {
         clientGetForm.setJobYears(client.getJobYears());
         clientGetForm.setTotalDebt(client.getTotalDebt());
 
-        List<DocumentSafeForm> documentForms = client.getDocumentsId()
-                .stream()
-                .map(docId -> {
-                    ResponseEntity<DocumentSafeForm> response = restTemplate.getForEntity(
-                            DOCUMENT_SERVICE_URL + "/" + docId,
-                            DocumentSafeForm.class
-                    );
-                    return response.getBody();
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<DocumentSafeForm> documentForms = getDocumentForms(client.getDocumentsId());
 
         clientGetForm.setDocuments(documentForms);
         clientGetForm.setLoans(null);
         return clientGetForm;
+    }
+
+    private List<DocumentSafeForm> getDocumentForms(List<Long> documentIds) {
+        return documentIds.stream()
+                .map(docId -> {
+                    try {
+                        ResponseEntity<DocumentSafeForm> response = restTemplate.getForEntity(
+                                DOCUMENT_SERVICE_URL + "/" + docId,
+                                DocumentSafeForm.class
+                        );
+                        return response.getBody();
+                    } catch (RestClientException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+
+    public ClientGetForm getClientById(Long id) {
+        Optional<ClientEntity> client = clientRepository.findById(id);
+
+        if (client.isPresent()) {
+            return setClientGetForm(client.get());
+        } else {
+            throw new EntityNotFoundException("Client Loan not found with id: " + id);
+        }
+    }
+
+    public List<DocumentSafeForm> getClientDocuments(Long id){
+        ClientGetForm client = getClientById(id);
+
+        if (client != null){
+            return client.getDocuments();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public ClientInfoRequiredForm getClientRequiredInfoByRut(Integer rut){
+        Optional<ClientEntity> optionalClient = clientRepository.findByRut(rut);
+
+        if (optionalClient.isPresent()){
+            ClientInfoRequiredForm clientInfoRequiredForm = new ClientInfoRequiredForm();
+            clientInfoRequiredForm.setYears(optionalClient.get().getYears());
+            clientInfoRequiredForm.setJobYears(optionalClient.get().getJobYears());
+            clientInfoRequiredForm.setMensualIncome(optionalClient.get().getMensualIncome());
+            clientInfoRequiredForm.setJobType(optionalClient.get().getJobType());
+            clientInfoRequiredForm.setTotalDebt(optionalClient.get().getTotalDebt());
+            return clientInfoRequiredForm;
+        }
+
+        return null;
     }
 }
