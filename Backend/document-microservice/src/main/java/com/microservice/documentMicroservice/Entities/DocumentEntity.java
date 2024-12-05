@@ -1,4 +1,4 @@
-package com.microservice.clientMicroservice.Entities;
+package com.microservice.documentMicroservice.Entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

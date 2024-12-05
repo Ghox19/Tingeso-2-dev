@@ -3,11 +3,9 @@ package com.microservice.clientMicroservice.DTOS;
 import lombok.Data;
 
 @Data
-public class DocumentForm {
+public class DocumentSafeForm {
+    private Long id;
     private String name;
-    private String content;
     private String type;
     private Boolean approved;
-    private Long clientId;
-    private Long clienLoanId;
 }

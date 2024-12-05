@@ -1,4 +1,4 @@
-package com.microservice.clientMicroservice;
+package com.microservice.documentMicroservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

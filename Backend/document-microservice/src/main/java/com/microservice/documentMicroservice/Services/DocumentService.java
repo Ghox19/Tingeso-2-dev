@@ -1,9 +1,9 @@
-package com.microservice.clientMicroservice.Services;
+package com.microservice.documentMicroservice.Services;
 
-import com.microservice.clientMicroservice.DTOS.DocumentForm;
-import com.microservice.clientMicroservice.DTOS.DocumentSaveForm;
-import com.microservice.clientMicroservice.Entities.DocumentEntity;
-import com.microservice.clientMicroservice.Repositories.DocumentRepository;
+import com.microservice.documentMicroservice.DTOS.DocumentForm;
+import com.microservice.documentMicroservice.DTOS.DocumentSafeForm;
+import com.microservice.documentMicroservice.Entities.DocumentEntity;
+import com.microservice.documentMicroservice.Repositories.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DocumentService {
@@ -42,7 +43,12 @@ public class DocumentService {
         return documentRepository.findAll();
     }
 
-    public DocumentEntity getDocument(Long id) {
+    public DocumentSafeForm getDocument(Long id) {
+        Optional<DocumentEntity> document = documentRepository.findById(id);
+        return document.map(this::setDocumentSafeForm).orElse(null);
+    }
+
+    public DocumentEntity getDocumentRaw(Long id) {
         return documentRepository.findById(id).orElse(null);
     }
 
@@ -53,13 +59,13 @@ public class DocumentService {
         return document;
     }
 
-    public DocumentSaveForm setDocumentSaveForm(DocumentEntity document){
-        DocumentSaveForm documentSaveForm = new DocumentSaveForm();
-        documentSaveForm.setId(document.getId());
-        documentSaveForm.setName(document.getName());
-        documentSaveForm.setType(document.getType());
-        documentSaveForm.setApproved(document.getApproved());
-        return documentSaveForm;
+    public DocumentSafeForm setDocumentSafeForm(DocumentEntity document){
+        DocumentSafeForm documentSafeForm = new DocumentSafeForm();
+        documentSafeForm.setId(document.getId());
+        documentSafeForm.setName(document.getName());
+        documentSafeForm.setType(document.getType());
+        documentSafeForm.setApproved(document.getApproved());
+        return documentSafeForm;
     }
 
     public DocumentEntity updateDocument(Long id, DocumentForm documentForm) {

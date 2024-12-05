@@ -1,8 +1,9 @@
-package com.microservice.clientMicroservice.Controllers;
+package com.microservice.documentMicroservice.Controllers;
 
-import com.microservice.clientMicroservice.DTOS.DocumentForm;
-import com.microservice.clientMicroservice.Entities.DocumentEntity;
-import com.microservice.clientMicroservice.Services.DocumentService;
+import com.microservice.documentMicroservice.DTOS.DocumentForm;
+import com.microservice.documentMicroservice.DTOS.DocumentSafeForm;
+import com.microservice.documentMicroservice.Entities.DocumentEntity;
+import com.microservice.documentMicroservice.Services.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class DocumentController {
 
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadDocument(@PathVariable Long id) {
-        DocumentEntity document = documentService.getDocument(id);
+        DocumentEntity document = documentService.getDocumentRaw(id);
         if (document != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -54,8 +55,8 @@ public class DocumentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentEntity> getDocument(@PathVariable Long id) {
-        DocumentEntity document = documentService.getDocument(id);
+    public ResponseEntity<DocumentSafeForm> getDocument(@PathVariable Long id) {
+        DocumentSafeForm document = documentService.getDocument(id);
         if (document != null) {
             return ResponseEntity.ok(document);
         } else {

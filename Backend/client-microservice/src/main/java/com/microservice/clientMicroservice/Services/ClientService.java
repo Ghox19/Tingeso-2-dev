@@ -1,6 +1,8 @@
 package com.microservice.clientMicroservice.Services;
 
+import com.microservice.clientMicroservice.DTOS.ClientGetForm;
 import com.microservice.clientMicroservice.DTOS.DocumentForm;
+import com.microservice.clientMicroservice.DTOS.DocumentSafeForm;
 import com.microservice.clientMicroservice.DTOS.RegisterForm;
 import com.microservice.clientMicroservice.Entities.ClientEntity;
 import com.microservice.clientMicroservice.Repositories.ClientRepository;
@@ -12,6 +14,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
@@ -83,5 +87,44 @@ public class ClientService {
         }
 
         return documentIds;
+    }
+
+    public List<ClientGetForm> getAllClients() {
+        List<ClientEntity> clients = this.clientRepository.findAll();
+
+        return clients.stream()
+                .map(this::setClientGetForm)
+                .collect(Collectors.toList());
+    }
+
+    public ClientGetForm setClientGetForm(ClientEntity client){
+        ClientGetForm clientGetForm = new ClientGetForm();
+        clientGetForm.setId(client.getId());
+        clientGetForm.setName(client.getName());
+        clientGetForm.setLastName(client.getLastName());
+        clientGetForm.setRut(client.getRut());
+        clientGetForm.setEmail(client.getEmail());
+        clientGetForm.setYears(client.getYears());
+        clientGetForm.setContact(client.getContact());
+        clientGetForm.setJobType(client.getJobType());
+        clientGetForm.setMensualIncome(client.getMensualIncome());
+        clientGetForm.setJobYears(client.getJobYears());
+        clientGetForm.setTotalDebt(client.getTotalDebt());
+
+        List<DocumentSafeForm> documentForms = client.getDocumentsId()
+                .stream()
+                .map(docId -> {
+                    ResponseEntity<DocumentSafeForm> response = restTemplate.getForEntity(
+                            DOCUMENT_SERVICE_URL + "/" + docId,
+                            DocumentSafeForm.class
+                    );
+                    return response.getBody();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        clientGetForm.setDocuments(documentForms);
+        clientGetForm.setLoans(null);
+        return clientGetForm;
     }
 }
