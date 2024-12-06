@@ -1,0 +1,50 @@
+eureka:
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    instance-id: ${spring.application.name}:${random.uuid}
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  devtools:
+    restart:
+      aditional-paths: src/main/java
+  application:
+    name: CLIENTLOAN-MICROSERVICE    # Cambiado a mayúsculas para coincidir con el gateway
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    config:
+      enabled: true
+      uri: http://localhost:8081
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/client-loan
+    username: postgres
+    password: admin
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.netflix.discovery: DEBUG
+    com.netflix.eureka: DEBUG
+    org.springframework.cloud: DEBUG

@@ -134,6 +134,10 @@ public class ClientService {
                 .collect(Collectors.toList());
     }
 
+    public ClientEntity getClientByRut(Integer rut){
+        Optional<ClientEntity> client = this.clientRepository.findByRut(rut);
+        return client.orElse(null);
+    }
 
     public ClientGetForm getClientById(Long id) {
         Optional<ClientEntity> client = clientRepository.findById(id);
@@ -170,5 +174,58 @@ public class ClientService {
         }
 
         return null;
+    }
+
+    public ResponseEntity<Object> updateClient(ClientEntity updateRequest) {
+        Optional<ClientEntity> clientOptional = clientRepository.findById(updateRequest.getId());
+
+        if (clientOptional.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Cliente no encontrado");
+        }
+
+        ClientEntity client = clientOptional.get();
+
+        // Actualizar solo los campos no nulos
+        if (updateRequest.getName() != null) {
+            client.setName(updateRequest.getName());
+        }
+        if (updateRequest.getLastName() != null) {
+            client.setLastName(updateRequest.getLastName());
+        }
+        if (updateRequest.getEmail() != null) {
+            client.setEmail(updateRequest.getEmail());
+        }
+        if (updateRequest.getYears() != null) {
+            client.setYears(updateRequest.getYears());
+        }
+        if (updateRequest.getContact() != null) {
+            client.setContact(updateRequest.getContact());
+        }
+        if (updateRequest.getJobType() != null) {
+            client.setJobType(updateRequest.getJobType());
+        }
+        if (updateRequest.getMensualIncome() != null) {
+            client.setMensualIncome(updateRequest.getMensualIncome());
+        }
+        if (updateRequest.getJobYears() != null) {
+            client.setJobYears(updateRequest.getJobYears());
+        }
+        if (updateRequest.getTotalDebt() != null) {
+            client.setTotalDebt(updateRequest.getTotalDebt());
+        }
+        if (updateRequest.getDocumentsId() != null) {
+            client.setDocumentsId(updateRequest.getDocumentsId());
+        }
+        if (updateRequest.getLoansId() != null) {
+            client.setLoansId(updateRequest.getLoansId());
+        }
+
+        clientRepository.save(client);
+
+        return ResponseEntity
+                .ok()
+                .body("Cliente actualizado exitosamente");
     }
 }

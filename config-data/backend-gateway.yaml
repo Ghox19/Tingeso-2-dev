@@ -43,4 +43,4 @@ spring:
         - id: clientloan-microservice
           uri: lb://CLIENTLOAN-MICROSERVICE
           predicates:
-            - Path=/client/**
+            - Path=/clientLoan/**

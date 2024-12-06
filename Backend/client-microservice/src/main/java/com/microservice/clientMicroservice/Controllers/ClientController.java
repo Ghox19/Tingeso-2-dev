@@ -4,6 +4,7 @@ import com.microservice.clientMicroservice.DTOS.ClientGetForm;
 import com.microservice.clientMicroservice.DTOS.ClientInfoRequiredForm;
 import com.microservice.clientMicroservice.DTOS.DocumentSafeForm;
 import com.microservice.clientMicroservice.DTOS.RegisterForm;
+import com.microservice.clientMicroservice.Entities.ClientEntity;
 import com.microservice.clientMicroservice.Services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class ClientController {
     @GetMapping("/documents/{id}")
     public List<DocumentSafeForm> getClientDocuments(@PathVariable Long id){return this.clientService.getClientDocuments(id);}
 
+    @GetMapping("/rut/{rut}")
+    public ClientEntity getClientByRut(@PathVariable Integer rut) {  return this.clientService.getClientByRut(rut);}
+
     @GetMapping("/{id}")
     public ClientGetForm getClientById(@PathVariable Long id) {  return this.clientService.getClientById(id);}
 
@@ -40,4 +44,8 @@ public class ClientController {
         return this.clientService.getClientRequiredInfoByRut(rut);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<Object> updateClient(@RequestBody ClientEntity client) {
+        return this.clientService.updateClient(client);
+    }
 }
