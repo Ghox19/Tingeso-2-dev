@@ -44,3 +44,7 @@ spring:
           uri: lb://CLIENTLOAN-MICROSERVICE
           predicates:
             - Path=/clientLoan/**
+        - id: simulation-microservice
+          uri: lb://SIMULATION-MICROSERVICE
+          predicates:
+            - Path=/simulation/**
