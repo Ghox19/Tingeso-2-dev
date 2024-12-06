@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/client-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/document-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/clientLoan-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/simulation-microservice/pom.xml" />
       </list>
     </option>
   </component>
