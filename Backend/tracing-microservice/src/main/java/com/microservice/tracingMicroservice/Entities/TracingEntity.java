@@ -1,4 +1,4 @@
-package com.microservice.savingMicroservice.Entities;
+package com.microservice.tracingMicroservice.Entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,21 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Entity
+@Table(name = "tracing")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientLoanEntity {
+public class TracingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private long id;
-
-    private String loanName;
-    private Integer years;
-    private Integer propertyValue;
-    private Float interest;
-    private Integer loanAmount;
-    private Float loanRatio;
 
     private Integer mensualPay;
     private Double cuotaIncome;
@@ -32,15 +27,5 @@ public class ClientLoanEntity {
     private Double deduction;
     private Integer totalCost;
 
-    private Long savingId;
-
-    private Long clientId;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "client_loan_document_ids",
-            joinColumns = @JoinColumn(name = "client_loan_id")
-    )
-    @Column(name = "document_id")
-    private List<Long> documentsId;
+    private Long clientLoanId;
 }

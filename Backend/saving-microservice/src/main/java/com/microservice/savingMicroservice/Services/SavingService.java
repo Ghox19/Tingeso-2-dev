@@ -3,10 +3,8 @@ package com.microservice.savingMicroservice.Services;
 import com.microservice.savingMicroservice.DTOs.ClientLoanGetForm;
 import com.microservice.savingMicroservice.DTOs.SavingForm;
 import com.microservice.savingMicroservice.Entities.ClientEntity;
-import com.microservice.savingMicroservice.Entities.ClientLoanEntity;
 import com.microservice.savingMicroservice.Entities.SavingEntity;
 import com.microservice.savingMicroservice.Repositories.SavingRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,8 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class SavingService {

@@ -14,19 +14,19 @@ spring:
     restart:
       aditional-paths: src/main/java
   application:
-    name: CLIENTLOAN-MICROSERVICE    # Cambiado a mayúsculas para coincidir con el gateway
+    name: TRACING-MICROSERVICE
   jpa:
     database: POSTGRESQL
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   cloud:
     config:
       enabled: true
       uri: http://localhost:8081
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/client-loan
+    url: jdbc:postgresql://localhost:5432/tracing
     username: postgres
     password: admin
   servlet:

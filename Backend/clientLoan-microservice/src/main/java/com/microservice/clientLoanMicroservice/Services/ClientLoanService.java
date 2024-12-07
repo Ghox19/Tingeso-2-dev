@@ -5,6 +5,7 @@ import com.microservice.clientLoanMicroservice.DTOS.*;
 import com.microservice.clientLoanMicroservice.Entities.ClientEntity;
 import com.microservice.clientLoanMicroservice.Entities.ClientLoanEntity;
 import com.microservice.clientLoanMicroservice.Entities.LoanEntity;
+import com.microservice.clientLoanMicroservice.Entities.TracingEntity;
 import com.microservice.clientLoanMicroservice.Repositories.ClientLoanRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,7 @@ public class ClientLoanService {
     private static final String CLIENT_SERVICE_URL = "http://localhost:8080/client-microservice/client";
     private static final String DOCUMENT_SERVICE_URL = "http://localhost:8080/document-microservice/document";
     private static final String LOAN_SERVICE_URL = "http://localhost:8080/loan-microservice/loan";
+    private static final String TRACING_SERVICE_URL = "http://localhost:8080/tracing-microservice/tracing";
 
     public ResponseEntity<Object> addClientLoan(ClientLoanForm clientLoanForm) {
         ClientEntity client = getClientByRutFromMicroservice(clientLoanForm.getRut());
@@ -122,7 +124,9 @@ public class ClientLoanService {
         }
 
 
-        ClientLoanEntity clientLoan = createAndSaveClientLoan(clientLoanForm, client.getId(), cuotaIncome, debtCuota, loanRatio);
+        ClientLoanEntity clientLoan = createAndSaveClientLoan(clientLoanForm, client.getId(), loanRatio);
+        Long tracingId = createAndSaveTracing(cuotaIncome, debtCuota, clientLoan.getId(), clientLoanForm.getMensualPay(), clientLoanForm.getFase());
+        clientLoan.setTracingId(tracingId);
         List<Long> documents = processDocuments(clientLoanForm.getDocuments(), clientLoan.getId());
 
         updateClientWithLoan(client, clientLoan, documents);
@@ -156,14 +160,34 @@ public class ClientLoanService {
         }
     }
 
-    private ClientLoanEntity createAndSaveClientLoan(ClientLoanForm form, Long clientId,Double cuotaIncome,Double debtCuota,Float loanRatio) {
+    private ClientLoanEntity createAndSaveClientLoan(ClientLoanForm form, Long clientId, Float loanRatio) {
         ClientLoanEntity clientLoan = new ClientLoanEntity();
         clientLoan.setClientId(clientId);
         setClientLoanFields(clientLoan, form);
-        clientLoan.setCuotaIncome(cuotaIncome);
-        clientLoan.setDebtCuota(debtCuota);
         clientLoan.setLoanRatio(loanRatio);
         return this.clientLoanRepository.save(clientLoan);
+    }
+
+    private Long createAndSaveTracing(Double cuotaIncome, Double debtCuota, Long clientLoanId, Integer mensualPay, String fase) {
+        TracingEntity tracingEntity = new TracingEntity();
+        tracingEntity.setClientLoanId(clientLoanId);
+        tracingEntity.setCuotaIncome(cuotaIncome);
+        tracingEntity.setDebtCuota(debtCuota);
+        tracingEntity.setMensualPay(mensualPay);
+        tracingEntity.setFase(fase);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<TracingEntity> requestEntity = new HttpEntity<>(tracingEntity, headers);
+
+        ResponseEntity<Long> response = restTemplate.postForEntity(
+                TRACING_SERVICE_URL,
+                requestEntity,
+                Long.class
+        );
+
+        return response.getBody();
     }
 
     private void setClientLoanFields(ClientLoanEntity clientLoan, ClientLoanForm form) {
@@ -171,8 +195,6 @@ public class ClientLoanService {
         clientLoan.setLoanName(form.getLoanName());
         clientLoan.setInterest(form.getInterest());
         clientLoan.setYears(form.getYears());
-        clientLoan.setMensualPay(form.getMensualPay());
-        clientLoan.setFase(form.getFase());
         clientLoan.setPropertyValue(form.getPropertyValue());
     }
 
@@ -245,18 +267,25 @@ public class ClientLoanService {
         clientLoanGetForm.setLoanName(clientLoan.getLoanName());
         clientLoanGetForm.setYears(clientLoan.getYears());
         clientLoanGetForm.setLoanAmount(clientLoan.getLoanAmount());
-        clientLoanGetForm.setMensualPay(clientLoan.getMensualPay());
-        clientLoanGetForm.setFase(clientLoan.getFase());
         clientLoanGetForm.setClientId(clientLoan.getClientId());
         clientLoanGetForm.setSavingsId(clientLoan.getSavingId());
         clientLoanGetForm.setPropertyValue(clientLoan.getPropertyValue());
-        clientLoanGetForm.setCuotaIncome(clientLoan.getCuotaIncome());
-        clientLoanGetForm.setDebtCuota(clientLoan.getDebtCuota());
-        clientLoanGetForm.setMessage(clientLoan.getMessage());
         clientLoanGetForm.setLoanRatio(clientLoan.getLoanRatio());
-        clientLoanGetForm.setFireInsurance(clientLoan.getFireInsurance());
-        clientLoanGetForm.setDeduction(clientLoan.getDeduction());
-        clientLoanGetForm.setTotalCost(clientLoan.getTotalCost());
+
+        TracingEntity tracingEntity = getTracingById(clientLoan.getTracingId());
+
+        if (tracingEntity == null){
+            return null;
+        }
+
+        clientLoanGetForm.setMensualPay(tracingEntity.getMensualPay());
+        clientLoanGetForm.setFase(tracingEntity.getFase());
+        clientLoanGetForm.setCuotaIncome(tracingEntity.getCuotaIncome());
+        clientLoanGetForm.setDebtCuota(tracingEntity.getDebtCuota());
+        clientLoanGetForm.setMessage(tracingEntity.getMessage());
+        clientLoanGetForm.setFireInsurance(tracingEntity.getFireInsurance());
+        clientLoanGetForm.setDeduction(tracingEntity.getDeduction());
+        clientLoanGetForm.setTotalCost(tracingEntity.getTotalCost());
 
         List<DocumentSafeForm> documentForms = getDocumentForms(clientLoan.getDocumentsId());
 
@@ -282,6 +311,19 @@ public class ClientLoanService {
                 .collect(Collectors.toList());
     }
 
+    private TracingEntity getTracingById(Long id) {
+        try {
+            ResponseEntity<TracingEntity> response = restTemplate.getForEntity(
+                    TRACING_SERVICE_URL + "/" + id,
+                    TracingEntity.class
+            );
+
+            return response.getBody();
+        } catch (RestClientException e) {
+            return null;
+        }
+    }
+
     public ResponseEntity<Object> updateClientLoanSavingId(ClientLoanGetForm clientLoanGetForm){
         Optional<ClientLoanEntity> clientLoan = clientLoanRepository.findById(clientLoanGetForm.getId());
 
@@ -296,6 +338,16 @@ public class ClientLoanService {
             return ResponseEntity
                     .badRequest()
                     .body("No se encontró el credito ingresado");
+        }
+    }
+
+    public ClientLoanEntity getClientLoanRawById(Long id){
+        Optional<ClientLoanEntity> clientLoan = clientLoanRepository.findById(id);
+
+        if (clientLoan.isPresent()) {
+            return clientLoan.get();
+        } else {
+            throw new EntityNotFoundException("Client Loan not found with id: " + id);
         }
     }
 }

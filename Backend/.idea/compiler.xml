@@ -15,6 +15,7 @@
         <module name="client-microservice" />
         <module name="backend-config" />
         <module name="clientLoan-microservice" />
+        <module name="tracing-microservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -34,6 +35,7 @@
       <module name="loan-microservice (1)" options="-parameters" />
       <module name="saving-microservice" options="-parameters" />
       <module name="simulation-microservice" options="-parameters" />
+      <module name="tracing-microservice" options="-parameters" />
     </option>
   </component>
 </project>
