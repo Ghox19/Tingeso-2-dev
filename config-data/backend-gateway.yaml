@@ -52,3 +52,7 @@ spring:
           uri: lb://SAVING-MICROSERVICE
           predicates:
             - Path=/saving/**
+        - id: tracing-microservice
+          uri: lb://TRACING-MICROSERVICE
+          predicates:
+            - Path=/tracing/**
