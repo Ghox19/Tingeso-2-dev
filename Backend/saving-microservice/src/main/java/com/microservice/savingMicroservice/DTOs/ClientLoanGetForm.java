@@ -1,7 +1,6 @@
-package com.microservice.clientLoanMicroservice.DTOS;
+package com.microservice.savingMicroservice.DTOs;
 
 
-import com.microservice.clientLoanMicroservice.Entities.ClientEntity;
 import lombok.Data;
 
 import java.util.List;

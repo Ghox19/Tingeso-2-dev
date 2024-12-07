@@ -9,8 +9,9 @@
         <module name="document-microservice" />
         <module name="loan-microservice" />
         <module name="backend-eureka" />
+        <module name="saving-microservice" />
+        <module name="simulation-microservice" />
         <module name="backend-gateway" />
-        <module name="loan-microservice (1)" />
         <module name="client-microservice" />
         <module name="backend-config" />
         <module name="clientLoan-microservice" />
@@ -18,6 +19,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Backend" target="17" />
+      <module name="loan-microservice (1)" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -30,6 +32,8 @@
       <module name="document-microservice" options="-parameters" />
       <module name="loan-microservice" options="-parameters" />
       <module name="loan-microservice (1)" options="-parameters" />
+      <module name="saving-microservice" options="-parameters" />
+      <module name="simulation-microservice" options="-parameters" />
     </option>
   </component>
 </project>

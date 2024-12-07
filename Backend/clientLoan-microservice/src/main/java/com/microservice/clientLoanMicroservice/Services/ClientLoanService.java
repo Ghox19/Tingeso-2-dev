@@ -1,9 +1,7 @@
 package com.microservice.clientLoanMicroservice.Services;
 
 
-import com.microservice.clientLoanMicroservice.DTOS.ClientGetForm;
-import com.microservice.clientLoanMicroservice.DTOS.ClientLoanForm;
-import com.microservice.clientLoanMicroservice.DTOS.DocumentForm;
+import com.microservice.clientLoanMicroservice.DTOS.*;
 import com.microservice.clientLoanMicroservice.Entities.ClientEntity;
 import com.microservice.clientLoanMicroservice.Entities.ClientLoanEntity;
 import com.microservice.clientLoanMicroservice.Entities.LoanEntity;
@@ -20,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -203,6 +202,7 @@ public class ClientLoanService {
                                       List<Long> documentsId) {
         try {
             clientLoan.setDocumentsId(documentsId);
+            this.clientLoanRepository.save(clientLoan);
 
             client.getLoansId().add(clientLoan.getId());
 
@@ -217,6 +217,85 @@ public class ClientLoanService {
             );
         } catch (RestClientException e) {
             throw new RuntimeException("Error al actualizar el cliente: " + e.getMessage());
+        }
+    }
+
+    public ClientLoanGetForm getClientLoanById(Long id) {
+        Optional<ClientLoanEntity> clientLoan = clientLoanRepository.findById(id);
+
+        if (clientLoan.isPresent()) {
+            return setClientLoanGetForm(clientLoan.get());
+        } else {
+            throw new EntityNotFoundException("Client Loan not found with id: " + id);
+        }
+    }
+
+    public List<ClientLoanGetForm> getAllClientLoan() {
+        List<ClientLoanEntity> clientLoans = this.clientLoanRepository.findAll();
+
+        return clientLoans.stream()
+                .map(this::setClientLoanGetForm)
+                .collect(Collectors.toList());
+    }
+
+    public ClientLoanGetForm setClientLoanGetForm(ClientLoanEntity clientLoan){
+        ClientLoanGetForm clientLoanGetForm = new ClientLoanGetForm();
+        clientLoanGetForm.setId(clientLoan.getId());
+        clientLoanGetForm.setInterest(clientLoan.getInterest());
+        clientLoanGetForm.setLoanName(clientLoan.getLoanName());
+        clientLoanGetForm.setYears(clientLoan.getYears());
+        clientLoanGetForm.setLoanAmount(clientLoan.getLoanAmount());
+        clientLoanGetForm.setMensualPay(clientLoan.getMensualPay());
+        clientLoanGetForm.setFase(clientLoan.getFase());
+        clientLoanGetForm.setClientId(clientLoan.getClientId());
+        clientLoanGetForm.setSavingsId(clientLoan.getSavingId());
+        clientLoanGetForm.setPropertyValue(clientLoan.getPropertyValue());
+        clientLoanGetForm.setCuotaIncome(clientLoan.getCuotaIncome());
+        clientLoanGetForm.setDebtCuota(clientLoan.getDebtCuota());
+        clientLoanGetForm.setMessage(clientLoan.getMessage());
+        clientLoanGetForm.setLoanRatio(clientLoan.getLoanRatio());
+        clientLoanGetForm.setFireInsurance(clientLoan.getFireInsurance());
+        clientLoanGetForm.setDeduction(clientLoan.getDeduction());
+        clientLoanGetForm.setTotalCost(clientLoan.getTotalCost());
+
+        List<DocumentSafeForm> documentForms = getDocumentForms(clientLoan.getDocumentsId());
+
+        clientLoanGetForm.setDocuments(documentForms);
+
+        return clientLoanGetForm;
+    }
+
+    private List<DocumentSafeForm> getDocumentForms(List<Long> documentIds) {
+        return documentIds.stream()
+                .map(docId -> {
+                    try {
+                        ResponseEntity<DocumentSafeForm> response = restTemplate.getForEntity(
+                                DOCUMENT_SERVICE_URL + "/" + docId,
+                                DocumentSafeForm.class
+                        );
+                        return response.getBody();
+                    } catch (RestClientException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<Object> updateClientLoanSavingId(ClientLoanGetForm clientLoanGetForm){
+        Optional<ClientLoanEntity> clientLoan = clientLoanRepository.findById(clientLoanGetForm.getId());
+
+        if (clientLoan.isPresent()) {
+            ClientLoanEntity clientLoanEntity = clientLoan.get();
+            clientLoanEntity.setSavingId(clientLoanGetForm.getSavingsId());
+            this.clientLoanRepository.save(clientLoanEntity);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body("Se actualizo el SavingId");
+        } else {
+            return ResponseEntity
+                    .badRequest()
+                    .body("No se encontró el credito ingresado");
         }
     }
 }
